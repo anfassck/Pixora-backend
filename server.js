@@ -8,17 +8,27 @@ const http = require('http');
 const { Server } = require('socket.io');
 
 const app = express();
+
+// Middleware - Moved CORS to the top
+app.use(cors({
+  origin: ["https://pixora.anfassck.online", "http://localhost:5173", "http://localhost:3000", "http://localhost:7070"],
+  credentials: true,
+  optionsSuccessStatus: 200
+}));
+
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ["https://pixora.anfassck.online", "http://localhost:5173", "http://localhost:3000", "http://localhost:9000"],
+    origin: ["https://pixora.anfassck.online", "http://localhost:5173", "http://localhost:3000", "http://localhost:7070"],
     methods: ["GET", "POST"],
     credentials: true
   }
 });
 
-
-const PORT = process.env.PORT || 9000;
+const PORT = process.env.PORT || 7070;
 
 // Socket.io Logic
 const userSockets = new Map(); // userId -> socketId
@@ -97,20 +107,7 @@ io.on('connection', (socket) => {
     io.emit('online-users', Array.from(userSockets.keys()));
     console.log(`❌ Socket disconnected: ${socket.id} (User: ${disconnectedUserId || 'Unknown'})`);
   });
-
-
 });
-
-// Middleware
-app.use(cors({
-  origin: ["https://pixora.anfassck.online", "http://localhost:5173", "http://localhost:3000", "http://localhost:9000"],
-  credentials: true
-}));
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
-
-// Serve uploaded files (images/videos)
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Attach Socket.io to req
 app.use((req, res, next) => {
@@ -126,6 +123,9 @@ mongoose.connect(process.env.MONGO_URI, {
 })
   .then(() => console.log('✅ MongoDB connected'))
   .catch(err => console.error('❌ MongoDB connection error:', err));
+
+// Serve uploaded files (images/videos)
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // API Routes
 const authRouter          = require('./routes/auth');
