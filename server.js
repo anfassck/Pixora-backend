@@ -28,16 +28,7 @@ const io = new Server(server, {
   }
 });
 
-<<<<<<< HEAD
-const PORT = process.env.PORT || 7070;
-=======
-app.use(cors({
-  origin: "https://pixora.anfassck.online",
-  credentials: true
-}));
-
-const PORT = 9000;
->>>>>>> a8103e6 (local changes before pull)
+const PORT = process.env.PORT || 9000;
 
 // Socket.io Logic
 const userSockets = new Map(); // userId -> socketId
