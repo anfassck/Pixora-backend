@@ -12,9 +12,9 @@ mongoose.connect(process.env.MONGO_URI).then(async () => {
   }
   
   if (admin) {
-    admin.password = 'anfass123';
+    admin.password = 'anfass777';
     await admin.save();
-    console.log(`✅ Password updated to anfass123 for user: ${admin.username} (${admin.email})`);
+    console.log(`✅ Password updated to anfass777 for user: ${admin.username} (${admin.email})`);
     
     // Also ensure this user is actually an admin
     if (!admin.isAdmin) {
@@ -23,9 +23,20 @@ mongoose.connect(process.env.MONGO_URI).then(async () => {
       console.log('Made user an admin too.');
     }
   } else {
-    // If no users at all, maybe create one?
-    const users = await User.find({});
-    console.log('❌ Admin not found! Available users in DB:', users.map(u => u.username).join(', '));
+    // If no admin user exists, create one
+    console.log('Creating a new admin user...');
+    admin = new User({
+      username: 'admin',
+      fullName: 'Admin',
+      email: 'muhammedanfasck@gmail.com',
+      password: 'anfass777',
+      isAdmin: true
+    });
+    await admin.save();
+    console.log('✅ Created new admin user: admin (muhammedanfasck@gmail.com) with password: anfass777');
   }
   process.exit();
+}).catch(err => {
+  console.error('❌ Connection or Execution error:', err);
+  process.exit(1);
 });
